@@ -10,28 +10,31 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         return dict(parse_qsl(self.url().query))
 
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html")
-        self.end_headers()
-        self.wfile.write(self.get_response().encode("utf-8"))
+        # Verificamos si la ruta es "/" para servir el contenido de home.html
+        if self.path == "/":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
 
-    def get_response(self):
-         path = self.url().path
-         query_data = self.query_data()
+            # Leemos el contenido de home.html
+            try:
+                with open("home.html", "r", encoding="utf-8") as file:
+                    html_content = file.read()
+                # Enviamos el contenido del archivo como respuesta
+                self.wfile.write(html_content.encode("utf-8"))
+            except FileNotFoundError:
+                # Si el archivo no existe, regresamos un error 404
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"404 - File not found")
+        else:
+            # Para cualquier otra ruta, regresamos un mensaje de ruta no encontrada
+            self.send_response(404)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(b"<h1>404 - Ruta no encontrada</h1>")
 
-        # Componemos la respuesta basada en el path y el query string
-         if(path == "/proyecto/web-uno"):
-            autor = query_data.get("autor", "Yo")
-            return f"""
-                <h1> Proyecto: web-uno Autor: {autor} </h1>
-            """
-         else:
-            return f"""
-                <h1>Ruta no encontrada</h1>
-                <p> Path Original: {self.path} </p>
-                <p> Query: {self.query_data()} </p>
-            """
-
+            
 if __name__ == "__main__":
     print("Starting server")
     server = HTTPServer(("localhost", 8000), WebRequestHandler)
