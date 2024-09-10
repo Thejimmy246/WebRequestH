@@ -27,6 +27,37 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(404)
                 self.end_headers()
                 self.wfile.write(b"404 - File not found")
+
+                        # Nueva ruta para servir 1.html
+        elif self.path == "/proyecto/1":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+
+            # Leemos el contenido de 1.html
+            try:
+                with open("1.html", "r", encoding="utf-8") as file:
+                    html_content = file.read()
+                # Enviamos el contenido del archivo como respuesta
+                self.wfile.write(html_content.encode("utf-8"))
+            except FileNotFoundError:
+                # Si el archivo no existe, regresamos un error 404
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"404 - File not found")
+        elif self.path == "/proyecto/web-uno?autor=Jaime":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+
+            # Leemos el contenido de 1.html
+            try:
+                self.wfile.write(b"Proyecto: web-uno Autor: Jaime")
+            except FileNotFoundError:
+                # Si el archivo no existe, regresamos un error 404
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"404 - File not found")
         else:
             # Para cualquier otra ruta, regresamos un mensaje de ruta no encontrada
             self.send_response(404)
